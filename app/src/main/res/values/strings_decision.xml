@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 设置 › 模型 › 决策模型(实验) -->
+    <string name="decision_title">Decision model (experimental)</string>
+    <string name="decision_row">Decision model</string>
+    <string name="decision_not_set">Not set</string>
+    <string name="decision_note">A decision model writes no text: it picks one of the actions Mika lists for the screen and says how sure it is. With the developer option “Hand short steps to the decision model” on, the main model can give it a small goal (up to 20 taps, scrolls or searches) and then takes over again. Experimental; only Google Gemini (gemini-decision-1) for now.</string>
+    <string name="decision_api_key">API key</string>
+    <string name="decision_get_key">Get a Gemini API key</string>
+    <string name="decision_model">Model</string>
+    <string name="decision_base_url">Base URL (optional)</string>
+    <string name="decision_test">Test</string>
+    <string name="decision_testing">Testing…</string>
+    <string name="decision_test_ok">%1$s answered the test question.</string>
+    <string name="decision_test_failed">Test failed: %1$s</string>
+    <string name="decision_test_timeout">%1$s didn’t answer within %2$d seconds.</string>
+    <string name="decision_test_not_found">Model “%1$s” wasn’t found. Check the model name.</string>
+    <string name="decision_missing_key">Enter an API key first.</string>
+    <string name="decision_privacy">During delegated steps, the goal, the recent actions and the text on the screen are sent to this provider (Google for Gemini). On Google’s free tier this data may be used to improve Google’s products. The key is stored encrypted on this device; clear it to stop using the decision model.</string>
+</resources>

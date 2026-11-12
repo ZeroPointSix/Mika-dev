@@ -10,6 +10,8 @@
     <string name="dev_deep_links_sub">Memakai tautan untuk langsung ke halaman di dalam aplikasi, bukan mengetuk satu per satu</string>
     <string name="dev_light">Langkah mudah diserahkan ke model ringan</string>
     <string name="dev_light_sub">Model ringan yang lebih cepat mengerjakan langkah mudah; model utama menangani yang sulit</string>
+    <string name="dev_delegate">Serahkan langkah singkat ke model keputusan</string>
+    <string name="dev_delegate_sub">Model utama dapat memberi tujuan kecil ke model keputusan, yang memilih ketukan dan guliran hingga 20 langkah. Perlu kunci di Pengaturan › Model › Model keputusan</string>
     <string name="dev_replay">Ulangi yang berhasil sebelumnya</string>
     <string name="dev_replay_sub">Memutar ulang rute tersimpan untuk hal yang pernah dikerjakan; diserahkan kembali ke model jika tidak cocok</string>
     <string name="dev_parallel">Jalankan obrolan secara paralel</string>

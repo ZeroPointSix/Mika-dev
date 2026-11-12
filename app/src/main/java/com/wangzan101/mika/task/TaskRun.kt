@@ -96,6 +96,7 @@ import com.wangzan101.mika.cap.phone.display.PipInput
 import com.wangzan101.mika.record.RunHandle
 import com.wangzan101.mika.record.RunStore
 import com.wangzan101.mika.settings.FeatureFlags
+import com.wangzan101.mika.settings.DecisionModelStore
 import com.wangzan101.mika.settings.RunApproval
 import com.wangzan101.mika.settings.Prerequisites
 import com.wangzan101.mika.takeover.HandoverActivity
@@ -900,6 +901,11 @@ class TaskRun(
                 self = selfPort,
                 selfOperate = selfPort?.takeIf { FeatureFlags.get(service).selfOperate() })
             dispatcher = tools
+            // 委托执行的决策模型:开发者选项打开了 delegateSteps、设置里填了 Key 才建;计量同对话模型,记在「决策」名下、
+            // 受本任务的 Token 预算约束。条件检查(只读)不给;子任务另建 AgentLoop,也不给
+            val decision = if (speed.delegateSteps && !conditionCheck) {
+                withContext(Dispatchers.IO) { DecisionModelStore.get(service).modelFor((service.application as MikaApp).usage) }
+            } else null
             val agent = AgentLoop(
                 model, tools,
                 SystemPrompt.identity(),
@@ -931,6 +937,8 @@ class TaskRun(
                 flags = speed,
                 // 只在 lightSteps 打开、轻量模型能调工具且与主模型不是同一份配置时生效
                 router = routedLight?.let { ModelRouter(model, it) },
+                // 只在 delegateSteps 打开、填了决策模型的 Key 时有
+                decision = decision,
                 intentJudge = if (provenance.origin == RunOrigin.Ui) light ?: model else null,
                 // 选路线是辅助判断:用轻量模型,没配用主模型
                 routes = if (speed.replay) RouteMatcher(light ?: model, routeStore, knowledge) else null,

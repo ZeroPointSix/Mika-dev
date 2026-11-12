@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">نموذج القرار (تجريبي)</string>
+    <string name="decision_row">نموذج القرار</string>
+    <string name="decision_not_set">غير مُعدّ</string>
+    <string name="decision_note">نموذج القرار لا يكتب نصًا: يختار أحد الإجراءات التي يعرضها Mika للشاشة ويذكر مدى ثقته. عند تشغيل خيار المطوّر «تسليم الخطوات القصيرة لنموذج القرار» يستطيع النموذج الرئيسي أن يكلّفه بهدف صغير (حتى 20 نقرة أو تمريرًا أو بحثًا) ثم يستعيد التحكم. ميزة تجريبية؛ حاليًا Google Gemini فقط (gemini-decision-1).</string>
+    <string name="decision_api_key">مفتاح API</string>
+    <string name="decision_get_key">احصل على مفتاح API لـ Gemini</string>
+    <string name="decision_model">النموذج</string>
+    <string name="decision_base_url">عنوان URL الأساسي (اختياري)</string>
+    <string name="decision_test">اختبار</string>
+    <string name="decision_testing">جارٍ الاختبار…</string>
+    <string name="decision_test_ok">أجاب %1$s عن سؤال الاختبار.</string>
+    <string name="decision_test_failed">فشل الاختبار: %1$s</string>
+    <string name="decision_test_timeout">لم يُجب %1$s خلال %2$d ثانية.</string>
+    <string name="decision_test_not_found">لم يُعثر على النموذج «%1$s». تحقّق من اسم النموذج.</string>
+    <string name="decision_missing_key">أدخل مفتاح API أولًا.</string>
+    <string name="decision_privacy">أثناء الخطوات المُسلَّمة يُرسَل الهدف وآخر الإجراءات والنص الظاهر على الشاشة إلى هذا المزوّد (Google في حالة Gemini). في الفئة المجانية من Google قد تُستخدم هذه البيانات لتحسين منتجات Google. يُحفظ المفتاح مشفّرًا على هذا الجهاز؛ امسحه للتوقف عن استخدام نموذج القرار.</string>
+</resources>

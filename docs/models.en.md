@@ -20,6 +20,19 @@ Whether a model can see images: if the provider's model list says, Mika goes by 
 
 The fourth role, used when you hold to talk; pick it under Settings › Models › Speech to text. By default it uses the phone's built-in speech recognition, which shows words as you speak and costs nothing. If the phone has none, or it is not accurate enough, pick a provider's speech model: it transcribes after you finish speaking and uses your quota. The list only shows models whose names look like speech models; for anything else, type the model name in by hand under that provider. Picking runs a short test transcription of silence and only selects the model if it works; otherwise you see why right away. If the phone's recognizer never responds when you hold to talk, Mika tells you and points you here; it never switches to a paid model by itself.
 
+## Decision model (experimental)
+
+A decision model writes no text and calls no tools: you give it a description of the situation and a few questions (yes/no, pick one, score), and it returns a probability for each option and how sure it is. Mika uses it for delegated execution: the main model hands it a small goal (such as "open File Transfer"), the app lists the actions possible on the current screen (which control to tap, scroll, go back, type text the main model supplied into the focused field), and the decision model picks them one step at a time, for up to 20 steps. It hands back to the main model when it is done, stuck, not sure enough, or about to do something like paying, sending or deleting. The main model looks at the screen fewer times, so tasks get faster and cheaper.
+
+Only Google Gemini's `gemini-decision-1` is supported for now. It is experimental and off by default:
+
+1. Under **Settings › Models › Decision model**, enter a Gemini API key. The base URL is optional (Google's default is used) and so is the model name (`gemini-decision-1`). "Test" asks one small real question using the values in the dialog and shows either success or the reason it failed (invalid key, model not found, proxy unreachable, and so on). The key is stored encrypted on the phone, like provider keys; clear it to stop using the decision model.
+2. Under **Settings › Advanced & other › Developer options**, turn on "Hand short steps to the decision model". Both places are only in debug and performance-test builds.
+
+Only with both in place can the main model delegate in new tasks; sub-tasks and condition checks never do. Decision-model usage shows up in Token usage as its own row, "Gemini Decisions"; it counts toward the task's token budget but not toward a Gemini chat provider's daily budget.
+
+**Where data goes**: for every delegated step, the goal, the recent actions and the text on the screen are sent to this provider (Google for Gemini). On Google's free tier this data may be used to improve Google's products; on paid tiers it is not. If you do not want screen content sent to Google, leave the switch off.
+
 ## Sign in with an account (no key needed)
 
 At the top of "Add provider" is the group "Sign in with an account · no key needed". Tap one to read what happens, sign in in the browser, and come back to Mika to see the account and its models; you can set one as the main model right there.

@@ -10,6 +10,8 @@
     <string name="dev_deep_links_sub">能用链接直达 App 里的页面,就不一层层点进去</string>
     <string name="dev_light">简单步骤交给轻量模型</string>
     <string name="dev_light_sub">容易的步骤让更快的轻量模型来做,难的仍由主模型做</string>
+    <string name="dev_delegate">短步骤交给决策模型</string>
+    <string name="dev_delegate_sub">主模型可以把一个小目标交给决策模型，由它选点按和滑动，最多 20 步。需先在 设置 › 模型 › 决策模型 里填密钥</string>
     <string name="dev_replay">照着上次的做法做</string>
     <string name="dev_replay_sub">做过的事按记住的操作路线快速重做,对不上就交回模型</string>
     <string name="dev_parallel">不同对话同时进行</string>

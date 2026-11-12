@@ -10,6 +10,8 @@
     <string name="dev_deep_links_sub">Uses links to jump straight to pages inside apps instead of tapping through</string>
     <string name="dev_light">Easy steps go to the light model</string>
     <string name="dev_light_sub">The faster light model does easy steps; the main model keeps the hard ones</string>
+    <string name="dev_delegate">Hand short steps to the decision model</string>
+    <string name="dev_delegate_sub">The main model can give a small goal to the decision model, which picks taps and scrolls for up to 20 steps. Needs a key in Settings › Model › Decision model</string>
     <string name="dev_replay">Repeat what worked last time</string>
     <string name="dev_replay_sub">Replays saved routes for things done before; hands back to the model if they don’t match</string>
     <string name="dev_parallel">Run chats in parallel</string>

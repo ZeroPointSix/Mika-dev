@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">決策模型（實驗）</string>
+    <string name="decision_row">決策模型</string>
+    <string name="decision_not_set">未設定</string>
+    <string name="decision_note">決策模型不寫文字：它從 Mika 依畫面列出的動作中選一個，並說明有多大把握。在開發人員選項中開啟「短步驟交給決策模型」後，主模型可以把一個小目標交給它（最多 20 步點按、滑動或尋找），完成後再接回來。實驗功能；目前只支援 Google Gemini（gemini-decision-1）。</string>
+    <string name="decision_api_key">API 金鑰</string>
+    <string name="decision_get_key">取得 Gemini API 金鑰</string>
+    <string name="decision_model">模型</string>
+    <string name="decision_base_url">Base URL（可選）</string>
+    <string name="decision_test">測試</string>
+    <string name="decision_testing">測試中…</string>
+    <string name="decision_test_ok">%1$s 回答了測試問題。</string>
+    <string name="decision_test_failed">測試未通過：%1$s</string>
+    <string name="decision_test_timeout">%1$s 在 %2$d 秒內沒有回應。</string>
+    <string name="decision_test_not_found">找不到模型「%1$s」，請檢查模型名稱。</string>
+    <string name="decision_missing_key">請先填寫 API 金鑰。</string>
+    <string name="decision_privacy">委託執行期間，目標、最近的動作和畫面上的文字會傳送給這家服務商（Gemini 即 Google）。Google 免費方案的資料可能被用於改進其產品。金鑰加密儲存在本機；清空金鑰即不再使用決策模型。</string>
+</resources>

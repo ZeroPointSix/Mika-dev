@@ -89,6 +89,12 @@ import com.wangzan101.mika.ui.components.TopBar
 import com.wangzan101.mika.ui.theme.MikaIcons
 import com.wangzan101.mika.ui.theme.MikaTheme
 import com.wangzan101.mika.ui.theme.MikaType
+import com.wangzan101.mika.record.DetailedTraces
+import com.wangzan101.mika.settings.DecisionModelConfig
+import com.wangzan101.mika.settings.DecisionModelStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 配置模型:用途(主模型、看图模型、轻量模型)和服务商两块。首次上手时 [onboarding] 为真
@@ -122,6 +128,11 @@ fun ModelSetupScreen(
     var allModels by rememberSaveable { mutableStateOf(false) }
     // 账号登录的面板:在添加表单和服务商详情里都能打开,登录中关掉也不打断登录
     var signInSheet by rememberSaveable { mutableStateOf<SignInKind?>(null) }
+    // 决策模型(实验):只在设置里、且有开发者选项的版本里出现(委托执行的开关在开发者选项里)
+    val decisionStore = remember { if (onboarding || !DetailedTraces.supportedBuild) null else DecisionModelStore.get(context) }
+    var decisionConfig by remember { mutableStateOf<DecisionModelConfig?>(null) }
+    var editingDecision by remember { mutableStateOf(false) }
+    LaunchedEffect(decisionStore) { decisionStore?.let { s -> decisionConfig = withContext(Dispatchers.IO) { s.get() } } }
 
     // 用账号登录成功:收起面板,打开这一家的详情(看账号和模型、设主模型)
     LaunchedEffect(ui.signedInProvider) {
@@ -210,6 +221,7 @@ fun ModelSetupScreen(
                     setModelContext = vm::setModelContext,
                 ),
                 onBack,
+                decision = decisionConfig?.let { cfg -> { DecisionModelSection(cfg) { editingDecision = true } } },
             )
         }
     }
@@ -235,6 +247,19 @@ fun ModelSetupScreen(
             ),
         )
     }
+
+    if (editingDecision && decisionStore != null) DecisionModelDialog(
+        initial = decisionConfig ?: DecisionModelConfig(),
+        store = decisionStore,
+        onDismiss = { editingDecision = false },
+        onSave = { config ->
+            scope.launch {
+                withContext(Dispatchers.IO) { decisionStore.set(config) }
+                decisionConfig = withContext(Dispatchers.IO) { decisionStore.get() }
+                editingDecision = false
+            }
+        },
+    )
 }
 
 /** 主页面上的全部动作。 */
@@ -270,7 +295,11 @@ class ModelSetupActions(
  * 所以设置里进来只有返回;上手时底部留「下一步」,键盘弹出时藏起来,把地方让给表单。
  */
 @Composable
-fun ModelSetupContent(ui: ModelSetupUi, onboarding: Boolean, actions: ModelSetupActions, onBack: () -> Unit) {
+fun ModelSetupContent(
+    ui: ModelSetupUi, onboarding: Boolean, actions: ModelSetupActions, onBack: () -> Unit,
+    /** 设置里放在最后的「决策模型(实验)」一组;为 null 时不显示(上手流程、发布版)。 */
+    decision: (@Composable () -> Unit)? = null,
+) {
     val c = MikaTheme.colors
     // 表单收起(测试通过存好了,或取消)后页面上没有要打字的地方,顺手收起键盘
     val focus = LocalFocusManager.current
@@ -299,6 +328,7 @@ fun ModelSetupContent(ui: ModelSetupUi, onboarding: Boolean, actions: ModelSetup
                             ListRow(MikaIcons.Chart, UsageCopy.TITLE, first = true, onClick = openUsage) { RowChevron() }
                         }
                     }
+                    decision?.invoke()
                 }
                 Spacer(Modifier.height(16.dp))
             }

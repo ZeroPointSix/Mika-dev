@@ -78,6 +78,7 @@ import com.wangzan101.mika.core.usage.UsageRange
 import com.wangzan101.mika.core.usage.UsageReport
 import com.wangzan101.mika.core.usage.UsageStep
 import com.wangzan101.mika.core.usage.UsageTotals
+import com.wangzan101.mika.settings.DecisionModelStore
 import com.wangzan101.mika.settings.ProviderStore
 import com.wangzan101.mika.ui.components.FooterNote
 import com.wangzan101.mika.ui.components.IconTile
@@ -267,8 +268,8 @@ fun UsageScreen(ledger: UsageLedger, store: ProviderStore, onBack: () -> Unit, o
     val zone = ZoneId.systemDefault()
     val report by produceState<UsageReport?>(null, version, range, live) {
         value = withContext(Dispatchers.Default) {
-            // 连着的服务商按连接先后传进去,配色按这个先后固定
-            UsageQuery.report(ledger.snapshot(), range, Instant.now(), zone, live.associate { it.id to it.name })
+            // 连着的服务商按连接先后传进去,配色按这个先后固定;决策模型不是服务商,排在后面、不标已删除
+            UsageQuery.report(ledger.snapshot(), range, Instant.now(), zone, live.associate { it.id to it.name } + DecisionModelStore.usageProviders)
         }
     }
     // 换了时间后选中的服务商在这段里没有用量了,就退回全部

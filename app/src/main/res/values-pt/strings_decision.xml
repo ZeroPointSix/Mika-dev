@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">Modelo de decisão (experimental)</string>
+    <string name="decision_row">Modelo de decisão</string>
+    <string name="decision_not_set">Não configurado</string>
+    <string name="decision_note">Um modelo de decisão não escreve texto: ele escolhe uma das ações que o Mika lista para a tela e informa o grau de certeza. Com a opção do desenvolvedor “Passar passos curtos ao modelo de decisão” ativada, o modelo principal pode lhe entregar um objetivo pequeno (até 20 toques, rolagens ou buscas) e depois retoma o controle. Experimental; por enquanto só Google Gemini (gemini-decision-1).</string>
+    <string name="decision_api_key">Chave de API</string>
+    <string name="decision_get_key">Obter uma chave de API do Gemini</string>
+    <string name="decision_model">Modelo</string>
+    <string name="decision_base_url">URL base (opcional)</string>
+    <string name="decision_test">Testar</string>
+    <string name="decision_testing">Testando…</string>
+    <string name="decision_test_ok">%1$s respondeu à pergunta de teste.</string>
+    <string name="decision_test_failed">O teste falhou: %1$s</string>
+    <string name="decision_test_timeout">%1$s não respondeu em %2$d segundos.</string>
+    <string name="decision_test_not_found">O modelo “%1$s” não foi encontrado. Verifique o nome do modelo.</string>
+    <string name="decision_missing_key">Primeiro informe uma chave de API.</string>
+    <string name="decision_privacy">Durante os passos delegados, o objetivo, as ações recentes e o texto da tela são enviados a este provedor (o Google, no caso do Gemini). No nível gratuito do Google, esses dados podem ser usados para melhorar os produtos do Google. A chave fica criptografada neste dispositivo; apague-a para deixar de usar o modelo de decisão.</string>
+</resources>
