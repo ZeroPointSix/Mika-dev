@@ -115,10 +115,7 @@ internal class ModelCaller(
             throw e
         } catch (e: Exception) {
             // Key、额度、模型名、请求本身不对,重试也没用:本任务余下的步都用主模型
-            if (e is ModelError.Auth || e is ModelError.QuotaExceeded || e is ModelError.DailyBudgetExceeded || e is ModelError.ModelNotFound ||
-                e is ModelError.ModelNotAvailable || e is ModelError.ToolsUnsupported ||
-                e is ModelError.ChatGptLimitReached || e is ModelError.ChatGptNotEligible || e is ModelError.SignInExpired || e is ModelError.AccountPlanNotAllowed ||
-                (e is ModelError.Server && e.status in 400..499)) r.disable()
+            if (lastsForRun(e)) r.disable()
             null
         }
         val first = light?.parts?.filterIsInstance<Part.ToolCall>()?.firstOrNull()
@@ -238,6 +235,15 @@ internal class ModelCaller(
         const val ROLE_LIGHT = "light"
         /** 轻量模型的回复没执行,这一步改问了主模型;仍是一次模型调用,用量照记。 */
         const val ROLE_LIGHT_REJECTED = "light_rejected"
+        /** delegate_steps 里决策模型的一次选择(不是主循环的一次回复)。 */
+        const val ROLE_DECISION = "decision"
+
+        /** Key、额度、模型名、请求本身不对一类的错:重试也没用,本任务余下都不必再用这个模型。 */
+        fun lastsForRun(e: Exception): Boolean =
+            e is ModelError.Auth || e is ModelError.QuotaExceeded || e is ModelError.DailyBudgetExceeded || e is ModelError.TaskBudgetExceeded ||
+                e is ModelError.ModelNotFound || e is ModelError.ModelNotAvailable || e is ModelError.ToolsUnsupported ||
+                e is ModelError.ChatGptLimitReached || e is ModelError.ChatGptNotEligible || e is ModelError.SignInExpired || e is ModelError.AccountPlanNotAllowed ||
+                (e is ModelError.Server && e.status in 400..499)
     }
 }
 

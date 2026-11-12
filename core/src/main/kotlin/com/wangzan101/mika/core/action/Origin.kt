@@ -49,6 +49,11 @@ sealed interface Origin {
         override val policy get() = BATCH
     }
 
+    /** delegate_steps 里决策模型选出的一步。 */
+    data class Delegate(override val step: Int) : Origin {
+        override val policy get() = DELEGATE
+    }
+
     /** web_script 里的一个 `mika.*` 动作。 */
     data class Script(override val step: Int) : Origin {
         override val policy get() = SCRIPT
@@ -80,6 +85,8 @@ sealed interface Origin {
             gatedByCaller = false, isolatedReads = false, actionCapMs = null, frames = Frames.WhenChanged, routeTargets = true,
             recordsRefusal = false, refusals = RefusalStyle.Code,
         )
+        // 委托和一批同样不带同意;运行记录里另记来源
+        private val DELEGATE = BATCH.copy(source = "delegate")
         // 脚本是网页上的一段程序,不能作为路线的一步回放
         private val SCRIPT = OriginPolicy(
             "script", usesGrant = false, judgeWithoutGate = true, refuseUnresolved = true, stopOnGuardWarning = false,
