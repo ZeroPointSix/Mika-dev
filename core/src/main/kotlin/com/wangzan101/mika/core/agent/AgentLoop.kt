@@ -34,6 +34,7 @@ import com.wangzan101.mika.core.memory.ProfileEntry
 import com.wangzan101.mika.core.memory.MemoryStore
 import com.wangzan101.mika.core.knowledge.toolsNote
 import com.wangzan101.mika.core.model.ChatModel
+import com.wangzan101.mika.core.model.DecisionModel
 import com.wangzan101.mika.core.model.Message
 import com.wangzan101.mika.core.model.ModelError
 import com.wangzan101.mika.core.model.ModelReply
@@ -173,6 +174,8 @@ class AgentLoop(
     /** 同一网站、App 里连着做对外动作(发送、提交)时两次之间的间隔;默认不等。 */
     private val outwardPacing: OutwardPacing = OutwardPacing.Off,
     private val trace: RunTrace? = null,
+    /** 决策模型;只在 flags.delegateSteps 打开时用,给了才提供 delegate_steps(子任务、只读任务不给)。 */
+    private val decision: DecisionModel? = null,
 ) {
     init {
         require(maxSteps > 0) { "maxSteps must be positive" }
@@ -243,6 +246,8 @@ class AgentLoop(
     /** 本任务的回答已因核对没对上退回过一次;再没对上就标成未确认交出,不再退回。 */
     private var gapsNudged = false
     private var provenance = RunProvenance()
+    /** 决策模型出了重试也没用的错:本任务余下的 delegate_steps 直接交回(工具照常提供,前缀不变)。 */
+    private var delegateBroken = false
     val activeAsk: Delivery.Ask? get() = user.activeAsk
 
     /** 新入口:同一对话里的插话和控制经 [inbox] 进入;旧入口继续使用相同的执行路径。 */
@@ -392,17 +397,22 @@ class AgentLoop(
         tools.preload(task, priorTurns.lastOrNull()?.groups.orEmpty()).forEach { emit(RunEvent.State(now(), "tools_preloaded", it)) }
         var openGroups = tools.expanded
         val batchSpec = BatchRunner.spec(tools.batchable()).takeIf { flags.batchSteps }
+        // 委托执行:开关开着、配了决策模型,而且不是子任务、只读任务;和一次多步一样跟着有屏幕的组出现
+        val delegateSpec = DelegateRunner.spec().takeIf {
+            flags.delegateSteps && decision != null && provenance.origin != RunOrigin.Child && tools.ctx.config.runSpec?.readOnly != true
+        }
+        delegateBroken = false
         fun keep(s: ToolSpec): Boolean {
             val verb = tools.verb(s.name)
             return (confirmations != null || verb != Verb.RequestConfirmation) && (memory != null || verb !in MEMORY_VERBS)
         }
         // 提示词版本按每组都展开的样子算:同一版提示词不因这次展开了哪几组而不同
-        val everything = tools.offeredNow(listOfNotNull(batchSpec), all = true).filter(::keep)
+        val everything = tools.offeredNow(listOfNotNull(batchSpec, delegateSpec), all = true).filter(::keep)
         emit(RunEvent.PromptVersion(now(), PromptVersion.of(SystemPrompt.assemble(basePrompt, tools.promptSections(everything, all = true)), everything)))
         var specs = emptyList<ToolSpec>()
         // 每次问模型之前:展开了新的组时,工具和系统提示词跟着换;没展开就一字不变
         fun refreshOffer() {
-            val offer = tools.offeredNow(listOfNotNull(batchSpec)).filter(::keep)
+            val offer = tools.offeredNow(listOfNotNull(batchSpec, delegateSpec)).filter(::keep)
             if (offer == specs) return
             specs = offer
             caller.systemPrompt = SystemPrompt.assemble(basePrompt, tools.promptSections(specs))
@@ -638,12 +648,17 @@ class AgentLoop(
             val args = parseArgs(first.argsJson)
 
             // 用户刚同意的那一步要单独做:批里的步不带同意,混进去会被关卡拦下,同意也可能被别的步用掉或作废
-            if (((flags.batchSteps && first.name == DO_STEPS_TOOL) || tools.composite(first.name)) && confirmations?.hasGrant == true) {
+            val delegating = delegateSpec != null && first.name == DELEGATE_STEPS_TOOL
+            if (((flags.batchSteps && first.name == DO_STEPS_TOOL) || delegating || tools.composite(first.name)) && confirmations?.hasGrant == true) {
                 val content = buildJsonObject {
                     put("ok", false); put("error", "approved_step_first"); put("message", APPROVED_STEP_FIRST); put("recoverable", true)
                 }
                 history += Message(Role.Tool, listOf(Part.ToolResult(first.id, content.toString(), isError = true)) + skipped, Author.Mika)
-                recordReply(if (first.name == DO_STEPS_TOOL) BatchRunner.redactArgs(first.argsJson) else Redactor.args(tools.verb(first.name), first.argsJson, secretField = true))
+                recordReply(when (first.name) {
+                    DO_STEPS_TOOL -> BatchRunner.redactArgs(first.argsJson)
+                    DELEGATE_STEPS_TOOL -> DelegateRunner.redactArgs(first.argsJson)
+                    else -> Redactor.args(tools.verb(first.name), first.argsJson, secretField = true)
+                })
                 recorder.result(step, first.name, tools.verb(first.name), content, JsonObject(emptyMap()), null, null, 0, "model", first.id)
                 track.after(tools.verb(first.name), ok = false, guard = false, changed = null, recovery = false, app = null)
                 continue
@@ -656,6 +671,14 @@ class AgentLoop(
                         val typed = StuckAdvice.typedText(tools.verb(s.tool), parseArgs(s.argsJson), sub?.content)
                         stuckAdvice(v, typed)
                     })
+                if (end != null) return end
+                if (completion.complete) return finalTurn(task, history, specs, step + 1, labels, place, recorder, facts(), inbox, Closeout.Completed, completion)
+                continue
+            }
+            if (delegating) {
+                val end = delegate(first, skipped, history, guards, executor, track, step, note, tool, reason, narration, recordReply = ::recordReply,
+                    app = { place = it }, steerWaiting = { inbox?.hasSteers() == true },
+                    noteVerdicts = { s, sub, v -> stuckAdvice(v, StuckAdvice.typedText(tools.verb(s.tool), parseArgs(s.argsJson), sub?.content)) })
                 if (end != null) return end
                 if (completion.complete) return finalTurn(task, history, specs, step + 1, labels, place, recorder, facts(), inbox, Closeout.Completed, completion)
                 continue
@@ -953,6 +976,56 @@ class AgentLoop(
             media.getOrPut(step) { mutableListOf() } += shotId
             emit(RunEvent.Media(now(), shotId, step, RunEvent.placeLabel(currentPlace)))
         }
+        return guards.stop?.let(StopRules::guard)
+    }
+
+    /**
+     * 执行一次 delegate_steps(见 [DelegateRunner]):整个委托对步数上限算一步,每个子步对守卫和运行记录各算一个动作;
+     * 交回时读的那一屏随结果给模型(能看图时连同画面)。返回非 null 表示任务就此结束(守卫叫停)。
+     */
+    private suspend fun delegate(
+        first: Part.ToolCall, skipped: List<Part.ToolResult>, history: MutableList<Message>, guards: OperationGuards,
+        executor: ActionExecutor, track: StepTrack, step: Int, note: String, tool: String?, reason: String?, narration: String?,
+        recordReply: (String?) -> Unit, app: (Place) -> Unit, steerWaiting: () -> Boolean,
+        noteVerdicts: (BatchStep, ToolExecution?, List<GuardVerdict>) -> String?,
+    ): TaskState? {
+        val (args, problem) = DelegateRunner.parse(first.argsJson)
+        val running = TaskState.Running(step, note, tool, null, reason, narration)
+        _state.value = running
+        val started = now()
+        var runner: DelegateRunner? = null
+        val exec = when {
+            args == null -> ToolExecution(buildJsonObject {
+                put("ok", false); put("error", "invalid_arguments"); put("message", problem); put("recoverable", true)
+            })
+            delegateBroken -> ToolExecution(buildJsonObject {
+                put("ok", false); put("status", DelegateRunner.STOPPED); put("reason", "decision_unavailable")
+                put("message", "The step-picker is unavailable for the rest of this task. Continue step by step yourself.")
+            })
+            else -> {
+                gateState = running
+                runner = DelegateRunner(tools, guards, executor, decision!!, noteVerdicts, steerWaiting)
+                runner.run(args, tools.surface, first.id, step).also { if (runner.disable) delegateBroken = true }
+            }
+        }
+        val durationMs = now() - started
+        val content = exec.content
+        val isError = content["ok"] != JsonPrimitive(true)
+        history += Message(Role.Tool, listOf(Part.ToolResult(first.id, content.toString(), isError, exec.observations.map { it.tag })) + skipped, Author.Mika)
+        if (exec.images.isNotEmpty()) {
+            history += Message(Role.User, listOf(Part.Text(NoticePolicy.imageNote(Verb.Observe, false))) +
+                exec.images.mapIndexed { i, img -> tools.modelImage(img, exec.imageIds.getOrNull(i)) }, Author.Mika)
+        }
+        recordReply(DelegateRunner.redactArgs(first.argsJson))
+        // 子步与交回时读的那一屏各自记过画面
+        emit(RunEvent.ToolResult(now(), step, first.name, RunEvent.clipResult(Redactor.text(content.toString())), exec.changed, null, durationMs,
+            waitMs = runner?.waitedMs ?: 0, callId = first.id))
+        exec.place?.let(app)
+        // 受阻交回不算失败(和被确认关卡拦下一样交给主模型);出错、叫停才算
+        val ok = content["status"]?.let { it == JsonPrimitive(DelegateRunner.DONE_STATUS) || it == JsonPrimitive(DelegateRunner.BLOCKED_STATUS) } == true ||
+            content["reason"] == JsonPrimitive(DelegateRunner.NEW_MESSAGE_REASON)
+        track.after(null, ok, runner?.verdicts?.isNotEmpty() == true || content["advice"] != null, exec.changed, false, exec.place?.name)
+        if (isError) track.markRecovery()
         return guards.stop?.let(StopRules::guard)
     }
 
