@@ -12,6 +12,7 @@ import com.wangzan101.mika.core.guard.GuardVerdict
 import com.wangzan101.mika.core.guard.OperationGuards
 import com.wangzan101.mika.core.model.DecisionAnswer
 import com.wangzan101.mika.core.model.DecisionModel
+import com.wangzan101.mika.core.model.ModelError
 import com.wangzan101.mika.core.model.DecisionQuestion
 import com.wangzan101.mika.core.model.DecisionReply
 import com.wangzan101.mika.core.model.Part
@@ -34,9 +35,7 @@ import com.wangzan101.mika.core.uistate.TreeQuality
 import com.wangzan101.mika.core.uistate.UiElement
 import com.wangzan101.mika.core.uistate.UntilWait
 import com.wangzan101.mika.core.uistate.interfaces
-import com.wangzan101.mika.core.usage.RunUsageTally
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -233,12 +232,14 @@ class DelegateRunner(
             append(set.screen)
             if (set.trimmed > 0) append("\n(${set.trimmed} more possible actions were left out of the options)")
         }
-        val tally = currentCoroutineContext()[RunUsageTally]
         val started = executor.recorder.now()
         val reply = try {
-            tally?.checkBudget()
-            decision.decide(input, mapOf(QUESTION to DecisionQuestion.Choice(Prompts.role("delegate_decision"), options))).also { tally?.add(it.usage, 1) }
+            // 用量与本任务的 Token 预算由计量外壳记(MeteredDecisionModel,和对话模型一样),这里不再记一遍
+            decision.decide(input, mapOf(QUESTION to DecisionQuestion.Choice(Prompts.role("delegate_decision"), options)))
         } catch (e: CancellationException) {
+            throw e
+        } catch (e: ModelError.TaskBudgetExceeded) {
+            // 整个运行共用一份预算:和主模型一样直接结束,不当成一次决策出错交回
             throw e
         } catch (e: Exception) {
             lastError = e::class.simpleName ?: "error"

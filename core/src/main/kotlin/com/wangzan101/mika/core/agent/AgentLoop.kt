@@ -676,9 +676,14 @@ class AgentLoop(
                 continue
             }
             if (delegating) {
-                val end = delegate(first, skipped, history, guards, executor, track, step, note, tool, reason, narration, recordReply = ::recordReply,
-                    app = { place = it }, steerWaiting = { inbox?.hasSteers() == true },
-                    noteVerdicts = { s, sub, v -> stuckAdvice(v, StuckAdvice.typedText(tools.verb(s.tool), parseArgs(s.argsJson), sub?.content)) })
+                val end = try {
+                    delegate(first, skipped, history, guards, executor, track, step, note, tool, reason, narration, recordReply = ::recordReply,
+                        app = { place = it }, steerWaiting = { inbox?.hasSteers() == true },
+                        noteVerdicts = { s, sub, v -> stuckAdvice(v, StuckAdvice.typedText(tools.verb(s.tool), parseArgs(s.argsJson), sub?.content)) })
+                } catch (e: ModelError.TaskBudgetExceeded) {
+                    // 决策调用把本任务的 Token 预算用完:和主模型用完时一样结束
+                    return StopRules.modelFailed(e)
+                }
                 if (end != null) return end
                 if (completion.complete) return finalTurn(task, history, specs, step + 1, labels, place, recorder, facts(), inbox, Closeout.Completed, completion)
                 continue
