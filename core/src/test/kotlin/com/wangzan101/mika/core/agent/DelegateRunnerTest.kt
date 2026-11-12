@@ -150,6 +150,16 @@ class DelegateRunnerTest {
         assertEquals("low_confidence", r2.s("reason"))
     }
 
+    @Test fun accountOrDeviceChangingPickIsHandedBackUnexecuted() = runTest {
+        for (name in listOf("退出登录", "Log out", "卸载")) {
+            val s = FlowScreen("me", mapOf("me" to listOf("收藏", name)), emptyMap())
+            val r = runner(toolDispatcher(s), FakeDecision(pick("Tap button \"$name\"", 0.99))).run(args(), "phone", "c1", 1).content
+            assertEquals(name, "needs_main_model", r.s("reason"))
+            assertEquals("false", r["pending"]!!.jsonObject.s("executed"))
+            assertTrue(s.calls.isEmpty())
+        }
+    }
+
     @Test fun irreversiblePickIsHandedBackUnexecuted() = runTest {
         val s = FlowScreen("wlan", home, links)
         val r = runner(toolDispatcher(s), FakeDecision(pick("Tap button \"发送日志\"", 0.99))).run(args(), "phone", "c1", 1).content

@@ -256,7 +256,16 @@ class DelegateRunner(
     /** 这一步只该由主模型决定:可能不可逆(按上一次读屏判)、工具声明要问、或是主模型才能给的调用。 */
     private fun needsMain(c: Candidate): Boolean =
         ModelRouter.mainOnly(c.tool, tools.verb(c.tool)) || tools.approvalRisk(c.tool, c.args)?.ask != null ||
-            ConfirmDecision.mayBeIrreversible(tools, c.tool, c.args)
+            ConfirmDecision.mayBeIrreversible(tools, c.tool, c.args) || changesAccountOrDevice(c.label)
+
+    /**
+     * 退出登录、切换或注销账号、卸载、重置这类动作:不可逆判定不管它们(主模型自己走时照常能点),
+     * 委托里一律不替主模型做,连同选中的那一步交回。只看元素的名字,宁可多交回。
+     */
+    private fun changesAccountOrDevice(label: String): Boolean {
+        val name = label.lowercase().filterNot { it.isWhitespace() }
+        return ACCOUNT_OR_DEVICE_WORDS.any { it in name }
+    }
 
     private fun note(s: BatchStep, exec: ToolExecution?, v: List<GuardVerdict>) {
         verdicts += v
@@ -300,6 +309,12 @@ class DelegateRunner(
     })
 
     companion object {
+        /** 名字里有这些词的元素,委托里不点(去空白、小写后比)。 */
+        private val ACCOUNT_OR_DEVICE_WORDS = listOf(
+            "退出登录", "退出登錄", "退出账号", "退出帳號", "登出", "切换账号", "切換帳號", "注销", "註銷", "卸载", "卸載",
+            "恢复出厂", "恢復出廠", "重置", "格式化", "抹掉", "解除绑定", "解绑", "解綁",
+            "logout", "signout", "switchaccount", "deleteaccount", "uninstall", "factoryreset", "eraseall", "unlink", "deactivate",
+        )
         /** 决策模型的置信度低于它就不照做,交回主模型(评测后再校准)。 */
         const val MIN_CONFIDENCE = 0.8
         const val DEFAULT_STEPS = 20
