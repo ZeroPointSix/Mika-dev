@@ -10,6 +10,8 @@
     <string name="dev_deep_links_sub">Usa links para ir direto às páginas dentro dos apps, em vez de tocar passo a passo</string>
     <string name="dev_light">Passos fáceis vão para o modelo leve</string>
     <string name="dev_light_sub">O modelo leve, mais rápido, faz os passos fáceis; o modelo principal fica com os difíceis</string>
+    <string name="dev_delegate">Passar passos curtos ao modelo de decisão</string>
+    <string name="dev_delegate_sub">O modelo principal pode entregar um objetivo pequeno ao modelo de decisão, que escolhe toques e rolagens por até 20 passos. Requer uma chave em Configurações › Modelo › Modelo de decisão</string>
     <string name="dev_replay">Repetir o que deu certo da última vez</string>
     <string name="dev_replay_sub">Reproduz roteiros salvos de coisas já feitas; devolve ao modelo se não corresponderem</string>
     <string name="dev_parallel">Executar conversas em paralelo</string>

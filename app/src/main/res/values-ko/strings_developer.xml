@@ -10,6 +10,8 @@
     <string name="dev_deep_links_sub">앱 안의 페이지를 일일이 누르지 않고 링크로 바로 이동해요</string>
     <string name="dev_light">쉬운 단계는 경량 모델이 처리</string>
     <string name="dev_light_sub">더 빠른 경량 모델이 쉬운 단계를 처리하고, 어려운 단계는 메인 모델이 맡아요</string>
+    <string name="dev_delegate">짧은 단계는 결정 모델에 맡기기</string>
+    <string name="dev_delegate_sub">메인 모델이 작은 목표를 결정 모델에 맡기고, 결정 모델이 탭과 스크롤을 최대 20단계 고릅니다. 설정 › 모델 › 결정 모델에 키가 있어야 합니다</string>
     <string name="dev_replay">지난번에 통했던 방법 반복</string>
     <string name="dev_replay_sub">전에 해 본 일은 저장한 경로로 재생하고, 맞지 않으면 모델에 다시 넘겨요</string>
     <string name="dev_parallel">채팅 동시에 실행</string>

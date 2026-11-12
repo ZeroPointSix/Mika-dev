@@ -147,6 +147,8 @@ class AgentLoop(
     private val clock: () -> Long = System::currentTimeMillis,
     /** 大小模型分工;只在 flags.lightSteps 打开时用。 */
     router: ModelRouter? = null,
+    /** 决策模型;只在 flags.delegateSteps 打开时用。 */
+    decision: DecisionModel? = null,
     /** UI 对话第一次要用工具时的独立意图判断；null 保留评测与其他入口的原行为。 */
     intentJudge: ChatModel? = null,
     /** 经验回放的路线匹配;只在 flags.replay 打开时用。 */

@@ -10,6 +10,8 @@
     <string name="dev_deep_links_sub">タップで順にたどらず、リンクでアプリ内のページへ直接移動します</string>
     <string name="dev_light">簡単なステップは軽量モデルに任せる</string>
     <string name="dev_light_sub">簡単なステップは高速な軽量モデルが担当し、難しいステップはメインモデルが担当します</string>
+    <string name="dev_delegate">短いステップを決定モデルに任せる</string>
+    <string name="dev_delegate_sub">メインモデルが小さな目標を決定モデルに任せ、タップやスクロールを最大 20 ステップ選ばせます。設定 › モデル › 決定モデル でキーの入力が必要です</string>
     <string name="dev_replay">前回うまくいった手順を再利用</string>
     <string name="dev_replay_sub">以前に行った作業は保存した手順で再実行し、合わないときはモデルに引き継ぎます</string>
     <string name="dev_parallel">チャットを並行して実行</string>

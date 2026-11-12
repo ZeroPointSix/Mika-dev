@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">Model keputusan (eksperimental)</string>
+    <string name="decision_row">Model keputusan</string>
+    <string name="decision_not_set">Belum diatur</string>
+    <string name="decision_note">Model keputusan tidak menulis teks: model ini memilih salah satu tindakan yang dicantumkan Mika untuk layar dan menyebutkan seberapa yakin. Jika opsi developer “Serahkan langkah singkat ke model keputusan” aktif, model utama dapat memberinya tujuan kecil (hingga 20 ketukan, guliran, atau pencarian) lalu mengambil alih lagi. Eksperimental; saat ini hanya Google Gemini (gemini-decision-1).</string>
+    <string name="decision_api_key">Kunci API</string>
+    <string name="decision_get_key">Dapatkan kunci API Gemini</string>
+    <string name="decision_model">Model</string>
+    <string name="decision_base_url">URL dasar (opsional)</string>
+    <string name="decision_test">Uji</string>
+    <string name="decision_testing">Menguji…</string>
+    <string name="decision_test_ok">%1$s menjawab pertanyaan uji.</string>
+    <string name="decision_test_failed">Uji gagal: %1$s</string>
+    <string name="decision_test_timeout">%1$s tidak menjawab dalam %2$d detik.</string>
+    <string name="decision_test_not_found">Model “%1$s” tidak ditemukan. Periksa nama model.</string>
+    <string name="decision_missing_key">Masukkan kunci API terlebih dahulu.</string>
+    <string name="decision_privacy">Selama langkah yang diserahkan, tujuan, tindakan terbaru, dan teks di layar dikirim ke penyedia ini (Google untuk Gemini). Di paket gratis Google, data ini dapat digunakan untuk meningkatkan produk Google. Kunci disimpan terenkripsi di perangkat ini; hapus kunci untuk berhenti memakai model keputusan.</string>
+</resources>
