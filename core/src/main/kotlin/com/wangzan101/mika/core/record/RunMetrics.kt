@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
  *   改派掉的轻量模型回复不算(用户看不到);回答逐段显示时第一段字会更早,没记录,不算。两样都没有为 null。
  * - [modelCalls]:模型回复事件数,即主循环的请求次数(含改派掉的轻量模型回复,[lightCalls] 是其中轻量模型的);
  *   [callsWithoutUsage] 是其中服务商没报用量的。token 是这些回复的用量之和([inputTokens] 含 [cachedTokens])。
+ *   委托里决策模型的选择([decisionCalls])不算进 [modelCalls],用量和耗时照样计入 token 与 [modelMs]。
  * - [allCalls] 等:运行期间经计量的全部外层逻辑调用([RunEvent.ModelCalls],含旁路调用和外层重试);
  *   [allHttpCalls] 是实际 HTTP 请求数(另含适配器内部重发),旧记录没有这项时为 null。
  * - [modelMs]:各次回复的请求耗时之和(最后一次请求发出到收完);之前失败的请求和退避另记在 [retryWaitMs]。
@@ -34,6 +35,7 @@ data class RunMetrics(
     val firstFeedbackMs: Long? = null,
     val modelCalls: Int = 0,
     val lightCalls: Int = 0,
+    val decisionCalls: Int = 0,
     val callsWithoutUsage: Int = 0,
     val inputTokens: Long = 0,
     val outputTokens: Long = 0,
@@ -76,6 +78,7 @@ data class RunMetrics(
         private var firstFeedback: Long? = null
         private var calls = 0
         private var light = 0
+        private var decisions = 0
         private var noUsage = 0
         private var input = 0L
         private var output = 0L
@@ -94,9 +97,11 @@ data class RunMetrics(
             when (e) {
                 is RunEvent.TaskStarted -> if (started == null) { started = e.atMs; goal = e.goal.take(GOAL_MAX) }
                 is RunEvent.ModelReply -> {
-                    calls++
-                    if (e.role == ROLE_LIGHT || !e.acted) light++
-                    if (e.inputTokens == null && e.outputTokens == null) noUsage++
+                    if (e.role == ROLE_DECISION) decisions++ else {
+                        calls++
+                        if (e.role == ROLE_LIGHT || !e.acted) light++
+                        if (e.inputTokens == null && e.outputTokens == null) noUsage++
+                    }
                     input += e.inputTokens ?: 0
                     output += e.outputTokens ?: 0
                     cached += e.cachedTokens ?: 0
@@ -155,6 +160,7 @@ data class RunMetrics(
                 firstFeedbackMs = firstFeedback?.let { (it - start).coerceAtLeast(0) },
                 modelCalls = calls,
                 lightCalls = light,
+                decisionCalls = decisions,
                 callsWithoutUsage = noUsage,
                 inputTokens = input,
                 outputTokens = output,
@@ -184,8 +190,9 @@ data class RunMetrics(
         private const val OBSERVE = "observe"
         private const val ACT = "act"
         private const val ROLE_LIGHT = "light"
-        /** 包在外层调用里的子步:一批动作里的一步、页面脚本里的一个动作。 */
-        private val NESTED = setOf("batch", "script")
+        private const val ROLE_DECISION = "decision"
+        /** 包在外层调用里的子步:一批动作里的一步、页面脚本里的一个动作、委托里的一步。 */
+        private val NESTED = setOf("batch", "script", "delegate")
         private val SUCCESS = setOf("succeeded", "unverified")
         private val NOT_DONE = setOf("partial", "not_possible")
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">決定モデル（実験的）</string>
+    <string name="decision_row">決定モデル</string>
+    <string name="decision_not_set">未設定</string>
+    <string name="decision_note">決定モデルは文章を書きません。Mika が画面から挙げた操作の中から 1 つを選び、その確信度を返します。開発者向けオプションで「短いステップを決定モデルに任せる」をオンにすると、メインモデルが小さな目標を任せ（タップ・スクロール・検索を最大 20 ステップ）、終わったら引き継ぎます。実験的な機能で、現在は Google Gemini（gemini-decision-1）のみ対応しています。</string>
+    <string name="decision_api_key">API キー</string>
+    <string name="decision_get_key">Gemini の API キーを取得</string>
+    <string name="decision_model">モデル</string>
+    <string name="decision_base_url">ベース URL（任意）</string>
+    <string name="decision_test">テスト</string>
+    <string name="decision_testing">テスト中…</string>
+    <string name="decision_test_ok">%1$s がテストの質問に回答しました。</string>
+    <string name="decision_test_failed">テストに失敗しました：%1$s</string>
+    <string name="decision_test_timeout">%1$s から %2$d 秒以内に応答がありませんでした。</string>
+    <string name="decision_test_not_found">モデル「%1$s」が見つかりません。モデル名を確認してください。</string>
+    <string name="decision_missing_key">先に API キーを入力してください。</string>
+    <string name="decision_privacy">任せたステップの間、目標・直近の操作・画面上のテキストがこのプロバイダー（Gemini の場合は Google）に送信されます。Google の無料枠では、このデータが Google のサービス改善に使われることがあります。キーはこの端末に暗号化して保存されます。キーを消すと決定モデルは使われなくなります。</string>
+</resources>

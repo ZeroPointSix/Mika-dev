@@ -27,6 +27,8 @@ object DeveloperSwitches {
         DevSwitch("batch-steps", tr(R.string.dev_batch), tr(R.string.dev_batch_sub), flags.batchSteps) { flags.copy(batchSteps = it) },
         DevSwitch("deep-links", tr(R.string.dev_deep_links), tr(R.string.dev_deep_links_sub), flags.deepLinks) { flags.copy(deepLinks = it) },
         DevSwitch("light-steps", tr(R.string.dev_light), tr(R.string.dev_light_sub), flags.lightSteps) { flags.copy(lightSteps = it) },
+        // 委托执行:要在 设置 › 模型 › 决策模型 里填好 Key 才真的生效
+        DevSwitch("delegate-steps", tr(R.string.dev_delegate), tr(R.string.dev_delegate_sub), flags.delegateSteps) { flags.copy(delegateSteps = it) },
     )
 
     fun experimental(flags: SpeedFlags): List<DevSwitch> = listOf(

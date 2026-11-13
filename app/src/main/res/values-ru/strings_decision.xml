@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">Модель решений (эксперимент)</string>
+    <string name="decision_row">Модель решений</string>
+    <string name="decision_not_set">Не задано</string>
+    <string name="decision_note">Модель решений не пишет текст: она выбирает одно из действий, которые Mika предлагает для экрана, и сообщает, насколько уверена. Если в настройках для разработчиков включить «Отдавать короткие шаги модели решений», основная модель сможет поручить ей небольшую цель (до 20 нажатий, прокруток или поисков), а потом продолжит сама. Экспериментальная функция; пока только Google Gemini (gemini-decision-1).</string>
+    <string name="decision_api_key">Ключ API</string>
+    <string name="decision_get_key">Получить ключ API Gemini</string>
+    <string name="decision_model">Модель</string>
+    <string name="decision_base_url">Базовый URL (необязательно)</string>
+    <string name="decision_test">Проверить</string>
+    <string name="decision_testing">Проверка…</string>
+    <string name="decision_test_ok">%1$s ответила на проверочный вопрос.</string>
+    <string name="decision_test_failed">Проверка не прошла: %1$s</string>
+    <string name="decision_test_timeout">%1$s не ответила за %2$d с.</string>
+    <string name="decision_test_not_found">Модель «%1$s» не найдена. Проверьте название модели.</string>
+    <string name="decision_missing_key">Сначала введите ключ API.</string>
+    <string name="decision_privacy">Во время порученных шагов цель, последние действия и текст на экране отправляются этому поставщику (для Gemini — Google). На бесплатном тарифе Google эти данные могут использоваться для улучшения продуктов Google. Ключ хранится на устройстве в зашифрованном виде; удалите его, чтобы больше не использовать модель решений.</string>
+</resources>

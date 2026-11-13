@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 
 /** 一次调用是为哪个用途发的。存储里记 [key];认不出的 key(以后的版本写的)读成 [Other]。 */
 enum class UsagePurpose(val key: String) {
-    Main("main"), Vision("vision"), Light("light"), Other("other");
+    Main("main"), Vision("vision"), Light("light"), Decision("decision"), Other("other");
 
     companion object {
         fun of(role: ModelRole): UsagePurpose = when (role) {
@@ -59,27 +59,32 @@ private open class MeteredModel(
     override suspend fun complete(system: String, messages: List<Message>, tools: List<ToolSpec>): ModelReply =
         counted { inner.complete(system, messages, tools) }
 
-    protected suspend fun counted(call: suspend () -> ModelReply): ModelReply {
-        // 在一次运行里调用的,也记到这次运行名下(见 RunUsageTally)
-        val tally = currentCoroutineContext()[RunUsageTally]
-        // 拒绝时不建请求计数、不调用适配器，也不记一笔不存在的逻辑调用。
-        tally?.checkBudget()
-        beforeCall(source)
-        val attempts = ModelHttpAttempts()
-        val reply = try {
-            withContext(attempts) { call() }
-        } catch (e: Throwable) {
-            note(null, tally, attempts.started)
-            throw e
-        }
-        note(reply.usage, tally, attempts.started)
-        return reply
-    }
+    protected suspend fun counted(call: suspend () -> ModelReply): ModelReply =
+        meteredCall(source, sink, beforeCall, ModelReply::usage, call)
+}
 
-    private fun note(usage: Usage?, tally: RunUsageTally?, httpAttempts: Int) {
-        runCatching { sink.record(source, usage, httpAttempts) }
-        tally?.add(usage, httpAttempts)
+/** 记一次逻辑调用:对话模型和决策模型([metered] 两个重载)共用。 */
+internal suspend fun <T> meteredCall(
+    source: UsageSource, sink: UsageSink, beforeCall: (UsageSource) -> Unit, usageOf: (T) -> Usage?, call: suspend () -> T,
+): T {
+    // 在一次运行里调用的,也记到这次运行名下(见 RunUsageTally)
+    val tally = currentCoroutineContext()[RunUsageTally]
+    // 拒绝时不建请求计数、不调用适配器，也不记一笔不存在的逻辑调用。
+    tally?.checkBudget()
+    beforeCall(source)
+    val attempts = ModelHttpAttempts()
+    fun note(usage: Usage?) {
+        runCatching { sink.record(source, usage, attempts.started) }
+        tally?.add(usage, attempts.started)
     }
+    val result = try {
+        withContext(attempts) { call() }
+    } catch (e: Throwable) {
+        note(null)
+        throw e
+    }
+    note(usageOf(result))
+    return result
 }
 
 private class MeteredStreamingModel(

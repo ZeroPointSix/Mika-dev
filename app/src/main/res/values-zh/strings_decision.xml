@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">决策模型（实验）</string>
+    <string name="decision_row">决策模型</string>
+    <string name="decision_not_set">未设置</string>
+    <string name="decision_note">决策模型不写文字：它从 Mika 按屏幕列出的动作里选一个，并说明有多大把握。在开发者选项里打开「短步骤交给决策模型」后，主模型可以把一个小目标交给它（最多 20 步点按、滑动或查找），做完再接回来。实验功能；目前只支持 Google Gemini（gemini-decision-1）。</string>
+    <string name="decision_api_key">API 密钥</string>
+    <string name="decision_get_key">获取 Gemini API 密钥</string>
+    <string name="decision_model">模型</string>
+    <string name="decision_base_url">Base URL（可选）</string>
+    <string name="decision_test">测试</string>
+    <string name="decision_testing">测试中…</string>
+    <string name="decision_test_ok">%1$s 回答了测试问题。</string>
+    <string name="decision_test_failed">测试没通过：%1$s</string>
+    <string name="decision_test_timeout">%1$s 在 %2$d 秒内没有回应。</string>
+    <string name="decision_test_not_found">找不到模型「%1$s」，请检查模型名。</string>
+    <string name="decision_missing_key">请先填写 API 密钥。</string>
+    <string name="decision_privacy">委托执行期间，目标、最近的动作和屏幕上的文字会发给这家服务商（Gemini 即谷歌）。谷歌免费档的数据可能被用于改进其产品。密钥加密保存在本机；清空密钥即不再使用决策模型。</string>
+</resources>

@@ -1,6 +1,7 @@
 package com.wangzan101.mika.core.prompt
 
 import com.wangzan101.mika.core.agent.BatchRunner
+import com.wangzan101.mika.core.agent.DelegateRunner
 import com.wangzan101.mika.core.testing.PromptSurface
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -15,7 +16,7 @@ class PromptLayoutTest {
     private fun files(layer: String) = File(root, layer).listFiles().orEmpty().filter { it.isFile }.map { it.name }.toSet()
     private fun size(layer: String) = File(root, layer).listFiles().orEmpty().filter { it.isFile }.sumOf { it.readBytes().size }
 
-    private val toolNames = allTools().map { it.name } + BatchRunner.spec(BATCHABLE).name
+    private val toolNames = allTools().map { it.name } + BatchRunner.spec(BATCHABLE).name + DelegateRunner.spec().name
     /** 也是普通英文词的工具名:system/ 里照常当词用,不算点名。 */
     private val plainWords = setOf("phone_screenshot", "phone_back", "wait", "phone_tap", "phone_scroll", "phone_swipe")
 
@@ -36,8 +37,10 @@ class PromptLayoutTest {
     }
 
     @Test fun everyToolHasExactlyOneDescriptionFile() {
-        val used = allTools().associate { it.name to it.promptFile } + (BatchRunner.spec(BATCHABLE).name to "do_steps")
-        val defs = allTools().associate { it.name to it.description } + (BatchRunner.spec(BATCHABLE).name to BatchRunner.spec(BATCHABLE).description)
+        val used = allTools().associate { it.name to it.promptFile } + (BatchRunner.spec(BATCHABLE).name to "do_steps") +
+            (DelegateRunner.spec().name to "delegate_steps")
+        val defs = allTools().associate { it.name to it.description } + (BatchRunner.spec(BATCHABLE).name to BatchRunner.spec(BATCHABLE).description) +
+            (DelegateRunner.spec().name to DelegateRunner.spec().description)
         for ((tool, file) in used) {
             assertTrue("$tool: missing prompts/tools/$file.md", File(root, "tools/$file.md").isFile)
             // 说明确实出自这份文件:模板里的占位符换成「任意文字」后能对上
@@ -64,7 +67,7 @@ class PromptLayoutTest {
         assertEquals(setOf("identity.md", "principles.md"), files("system"))
         assertEquals((listOf("phone", "app-access", "batch", "web", "sandbox", "general", "inline-screen", "channels", "groups", "handover", "root")).map { "$it.md" }.toSet(), files("capabilities"))
         assertEquals(Feedback.FILES.map { "$it.md" }.toSet(), files("feedback"))
-        val roles = setOf("app_classifier", "describe", "intent_gate", "locate", "memory_extract", "route_match", "skill_draft", "app_knowledge", "app_knowledge_input", "verifier", "outcome_judge", "user_screen", "stop_summary", "conversation_title", "teach_skill")
+        val roles = setOf("app_classifier", "describe", "intent_gate", "locate", "memory_extract", "route_match", "skill_draft", "app_knowledge", "app_knowledge_input", "verifier", "outcome_judge", "user_screen", "stop_summary", "conversation_title", "teach_skill", "delegate_decision")
         assertEquals(roles.map { "$it.md" }.toSet(), files("roles"))
         roles.forEach { assertTrue(Prompts.role(it).isNotBlank()) }
         assertEquals(setOf("README.md"), root.listFiles().orEmpty().filter { it.isFile }.map { it.name }.toSet())

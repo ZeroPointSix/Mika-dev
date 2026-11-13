@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="decision_title">مدل تصمیم (آزمایشی)</string>
+    <string name="decision_row">مدل تصمیم</string>
+    <string name="decision_not_set">تنظیم نشده</string>
+    <string name="decision_note">مدل تصمیم متن نمی‌نویسد: از میان کارهایی که Mika برای صفحه فهرست می‌کند یکی را برمی‌گزیند و می‌گوید چقدر مطمئن است. اگر گزینهٔ توسعه‌دهنده «سپردن مراحل کوتاه به مدل تصمیم» روشن باشد، مدل اصلی می‌تواند هدفی کوچک را به آن بسپارد (تا ۲۰ ضربه، پیمایش یا جست‌وجو) و سپس دوباره کار را به دست بگیرد. آزمایشی است؛ فعلاً فقط Google Gemini (gemini-decision-1).</string>
+    <string name="decision_api_key">کلید API</string>
+    <string name="decision_get_key">دریافت کلید API جمینای</string>
+    <string name="decision_model">مدل</string>
+    <string name="decision_base_url">نشانی پایه (اختیاری)</string>
+    <string name="decision_test">آزمایش</string>
+    <string name="decision_testing">در حال آزمایش…</string>
+    <string name="decision_test_ok">%1$s به پرسش آزمایشی پاسخ داد.</string>
+    <string name="decision_test_failed">آزمایش ناموفق بود: %1$s</string>
+    <string name="decision_test_timeout">%1$s ظرف %2$d ثانیه پاسخ نداد.</string>
+    <string name="decision_test_not_found">مدل «%1$s» پیدا نشد. نام مدل را بررسی کنید.</string>
+    <string name="decision_missing_key">اول کلید API را وارد کنید.</string>
+    <string name="decision_privacy">در طول مراحل سپرده‌شده، هدف، کارهای اخیر و متن روی صفحه برای این ارائه‌دهنده (برای Gemini، گوگل) فرستاده می‌شود. در طرح رایگان گوگل ممکن است از این داده‌ها برای بهبود محصولات گوگل استفاده شود. کلید رمزگذاری‌شده روی همین دستگاه نگه داشته می‌شود؛ برای کنار گذاشتن مدل تصمیم آن را پاک کنید.</string>
+</resources>

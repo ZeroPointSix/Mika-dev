@@ -69,7 +69,10 @@ sealed interface RunEvent {
         val latencyMs: Long = 0,
         /** 本次调用实际用的模型;null = 主模型。 */
         val model: String? = null,
-        /** 大小模型分工起作用时:main / light / light_rejected(轻量模型的回复没执行,改问了主模型);否则 null。 */
+        /**
+         * 大小模型分工起作用时:main / light / light_rejected(轻量模型的回复没执行,改问了主模型);
+         * decision 是 delegate_steps 里决策模型的一次选择(没有文字和调用,只记模型、用量和耗时);否则 null。
+         */
         val role: String? = null,
         /** 重试前花掉的时间:失败的那几次请求加退避等待。 */
         val retryWaitMs: Long = 0,
@@ -79,8 +82,8 @@ sealed interface RunEvent {
          */
         val repliedAtMs: Long? = null,
     ) : RunEvent {
-        /** 这次回复真的驱动了这一步(改派掉的轻量模型回复不算)。 */
-        val acted: Boolean get() = role != "light_rejected"
+        /** 这次回复真的驱动了这一步(改派掉的轻量模型回复、委托里决策模型的选择都不算主循环的回复)。 */
+        val acted: Boolean get() = role != "light_rejected" && role != "decision"
     }
 
     /** [resultJson] 含守卫结论,整条记下;只有超过 [MAX_RESULT] 字才截短并留标记。 */
